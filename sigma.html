@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Requests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+        }
+        #output {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Send HTTP Requests</h1>
+    <label for="ip">IP Address (or URL):</label>
+    <input type="text" id="ip" placeholder="Enter IP or URL">
+    <br>
+
+    <label for="numRequests">Number of Requests:</label>
+    <input type="number" id="numRequests" placeholder="Enter number of requests">
+    <br>
+
+    <label for="delay">Delay between Requests (ms):</label>
+    <input type="number" id="delay" placeholder="Enter delay in ms">
+    <br>
+
+    <button id="startBtn">Start Sending Requests</button>
+
+    <div id="output"></div>
+
+    <script>
+        // Function to send requests with the specified delay between them
+        function sendRequests(ip, numRequests, delay) {
+            let output = document.getElementById("output");
+            let requestCount = 0;
+
+            // Function to send each request with delay
+            function sendRequest() {
+                fetch(`http://${ip}`)
+                    .then(response => {
+                        output.textContent += `Request ${requestCount + 1}: Success - Status Code: ${response.status}\n`;
+                    })
+                    .catch(error => {
+                        output.textContent += `Request ${requestCount + 1}: Failed - ${error}\n`;
+                    });
+
+                requestCount++;
+
+                if (requestCount < numRequests) {
+                    setTimeout(sendRequest, delay); // Repeat with delay
+                } else {
+                    output.textContent += "\nAll requests completed.";
+                }
+            }
+
+            // Start sending requests
+            sendRequest();
+        }
+
+        // Event listener for the start button
+        document.getElementById("startBtn").addEventListener("click", function () {
+            const ip = document.getElementById("ip").value;
+            const numRequests = parseInt(document.getElementById("numRequests").value);
+            const delay = parseInt(document.getElementById("delay").value);
+
+            if (!ip || isNaN(numRequests) || numRequests <= 0 || isNaN(delay) || delay <= 0) {
+                alert("Please fill out all fields correctly.");
+                return;
+            }
+
+            // Clear previous output
+            document.getElementById("output").textContent = "Starting requests...\n";
+
+            // Call the function to start sending requests
+            sendRequests(ip, numRequests, delay);
+        });
+    </script>
+
+</body>
+</html>
